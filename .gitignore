@@ -2,6 +2,8 @@
 *__pycache__
 *.jpg
 *.pt
+*.mp4
+*.mov
 
 # datasets
 /datasets/Safety_Helmet_Train_dataset
@@ -14,16 +16,4 @@
 /ckpt/classifer
 ckpt/clip-vit-base-patch16
 ckpt/yolo
-
-# playground
-/playground/test_videos/test1.mov
-/playground/test_videos/test3.mov
-/playground/test_videos/test5.mov
-/playground/test_videos/test6.mov
-
-# inference
-/inference/test_videos/test1.mp4
-/inference/test_videos/test3.mp4
-/inference/test_videos/test5.mp4
-/inference/test_videos/test6.mp4
 
