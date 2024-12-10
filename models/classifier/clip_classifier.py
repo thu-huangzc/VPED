@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+# @Time    : 2024/12/10 16:30
+# @Author  : thu-huangzc
+# @Email   : riccardohhhhzz@gmail.com
+# @File    : models/classifier/clip_classifier.py
+# @Software: Vscode
+# @Brief   : CLIP通用分类器
+
 import torch
 from transformers import CLIPProcessor, CLIPModel
 from utils.general import resize_and_pad_to_square

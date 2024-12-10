@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+# @Time    : 2024/12/10 16:30
+# @Author  : thu-huangzc
+# @Email   : riccardohhhhzz@gmail.com
+# @File    : utils/general.py
+# @Software: Vscode
+# @Brief   : 一些常用的函数工具，例如基本的文件处理、图像处理等
+
 import cv2
 import numpy as np
 import datetime
