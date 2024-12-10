@@ -1,0 +1,19 @@
+
+*__pycache__
+*.mp4
+*.mov
+*.jpg
+*.pt
+
+# datasets
+/datasets/Safety_Helmet_Train_dataset
+/datasets/VOC2028
+
+# training
+/runs
+
+# model ckpt
+/ckpt/classifer
+ckpt/clip-vit-base-patch16
+ckpt/yolo
+
