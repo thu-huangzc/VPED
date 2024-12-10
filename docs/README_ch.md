@@ -29,7 +29,7 @@
 
     a. 行人检测与跟踪 -> [yolov8m.pt](https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8m.pt)
 
-    b. 安全帽检测 -> [helmet_head_person_epoch10.pt](https://drive.google.com/file/d/1PBXjppzax_pXkiDUIyoQC0jzAEWpM8I9/view?usp=sharing)
+    b. 安全帽检测 -> [helmet_head_person_epoch10.pt]https://drive.google.com/drive/folders/1f3z1MJ9K5zrn0tpNMhLMnO3gNTeNd6r_?usp=drive_link)
 
     c. CLIP 模型 -> [clip-vit-base-patch16](https://huggingface.co/openai/clip-vit-base-patch16/tree/main)
 
