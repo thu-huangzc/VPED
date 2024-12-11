@@ -1,6 +1,6 @@
 # 视频行人事件检测
 
-[English](../README.md)｜<u>中文</u>
+[English](../)｜<u>中文</u>
 
 <div style="text-align: center;">
   <img src="../docs/gifs/gender_example1.gif"  width=90% alt="gender" />
