@@ -8,12 +8,14 @@
 # datasets
 /datasets/Safety_Helmet_Train_dataset
 /datasets/VOC2028
+/datasets/smoke_phone
+/datasets/smoke
 
 # training
 /runs
 
 # model ckpt
-/ckpt/classifer
+ckpt/classifier
 ckpt/clip-vit-base-patch16
 ckpt/yolo
 

@@ -5,7 +5,7 @@
 # @File    : demo.py
 # @Software: Vscode
 # @Brief   : vped使用演示，支持on-line和off-line测试
-# @Command : CUDA_VISIBLE_DEVICES=0 python demo.py --input ./playground/test_videos/test7.mov --event helmet --draw-results
+# @Command : CUDA_VISIBLE_DEVICES=0 python demo.py --input ./playground/test_videos/mask.mov --event mask --draw-results
 
 from models.vped import VPED
 import torch
@@ -13,8 +13,10 @@ import argparse
 
 def main():
     import warnings
+    #TODO: FIX THESE WARNINGS
     warnings.filterwarnings('ignore', category=UserWarning, message='TypedStorage is deprecated')
     warnings.filterwarnings('ignore', category=UserWarning, message='torch.meshgrid')
+    warnings.filterwarnings('ignore', category=UserWarning, message='Setuptools is replacing distutils')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str, default='./playground/test_videos/test3.mov', help="input video path, just write 'webcam' if you want to use webcam")
@@ -30,6 +32,7 @@ def main():
         'yolo_detector_ckpt': './ckpt/yolo/yolov8m.pt',
         'yolo_helmet_ckpt': './ckpt/yolo/helmet_head_person_epoch10.pt',
         'clip_model_ckpt': './ckpt/clip-vit-base-patch16',
+        'phone_detector_ckpt': './ckpt/classifier/phone_detection.pth',
         'output_video_dir': './inference/test_videos'
     }
 
@@ -37,7 +40,7 @@ def main():
 
     input, event, draw_results = opt.input, opt.event, opt.draw_results
     if input == 'webcam':
-        model.predict(event=event, web_cam=True, draw_result=draw_results)
+        model.predict(event, web_cam=True, draw_result=draw_results)
     else:
         model.predict(event, video_path=input, web_cam=False, draw_result=draw_results)
 

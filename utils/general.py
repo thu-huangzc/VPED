@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 import datetime
 import os 
+from torchvision import transforms
 
 def unified_output_video_path(input_video_path, input_dir='playground', output_dir='inference'):
     """
@@ -83,3 +84,42 @@ def resize_and_pad_to_square(img, target_size=224):
     new_img[paste_y:paste_y + new_height, paste_x:paste_x + new_width] = resized_img
 
     return new_img
+
+
+class ResizeWithPadding(object):
+    def __init__(self, target_size, fill=0):
+        """
+        自定义 transform，用于按比例调整大小并填充为指定尺寸
+        :param target_size: 输出图像的宽高（正方形尺寸）
+        :param fill: 填充颜色，默认为黑色
+        """
+        self.target_size = target_size
+        self.fill = fill
+
+    def __call__(self, image):
+        # 获取原始宽高
+        original_width, original_height = image.size
+        
+        # 按比例调整图像大小
+        aspect_ratio = original_width / original_height
+        if aspect_ratio > 1:
+            # 宽度大于高度，调整宽度为 target_size
+            new_width = self.target_size
+            new_height = int(self.target_size / aspect_ratio)
+        else:
+            # 高度大于宽度，调整高度为 target_size
+            new_height = self.target_size
+            new_width = int(self.target_size * aspect_ratio)
+
+        # 调整图像大小
+        image = transforms.functional.resize(image, (new_height, new_width))
+        
+        # 计算填充大小
+        pad_left = (self.target_size - new_width) // 2
+        pad_right = self.target_size - new_width - pad_left
+        pad_top = (self.target_size - new_height) // 2
+        pad_bottom = self.target_size - new_height - pad_top
+
+        # 填充图像
+        image = transforms.functional.pad(image, (pad_left, pad_top, pad_right, pad_bottom), fill=self.fill)
+        return image

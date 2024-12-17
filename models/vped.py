@@ -10,6 +10,8 @@ import cv2
 import torch
 from models.classifier.clip_classifier import CLIPClassifier
 from models.yolo import load_yolo
+import paddlehub as hub
+from models.classifier.phone_detector import PhoneDetector
 from utils.general import *
 from tqdm import tqdm
 
@@ -22,17 +24,20 @@ class VPED(object):
         self.yolo_detector_ckpt = kwargs.get('yolo_detector_ckpt', './ckpt/yolo/yolov8m.pt') # 使用预训练yolov8+bytetracker对行人进行目标检测追踪
         self.yolo_helmet_ckpt = kwargs.get('yolo_helmet_ckpt', './ckpt/yolo/helmet_head_person_epoch10.pt') # 使用在自制数据集上训练后的yolov8作为安全帽识别和检测模型
         self.clip_model_ckpt = kwargs.get('clip_model_ckpt', './ckpt/clip-vit-base-patch16') # 使用clip基于人体图像进行性别识别
+        self.phone_detector_ckpt = kwargs.get('phone_detector_ckpt', './ckpt/classifier/phone_detection.pth') # 使用efficientnet对打电话进行识别
 
         # 其他参数
         self.max_duty_ratio = max_duty_ratio
         self.sample_interval = sample_interval
-        self.support_events = ['gender', 'helmet']
+        self.support_events = set(['gender', 'helmet', 'mask', 'smoking', 'phone'])
         self.output_video_dir = kwargs.get('output_video_dir', './inference/test_videos')
 
         # 加载模型
         self.det = load_yolo(self.yolo_detector_ckpt, self.device)
         self.helmet_det = load_yolo(self.yolo_helmet_ckpt, self.device)
         self.gender_classifer = CLIPClassifier(self.clip_model_ckpt, self.device)
+        self.mask_det = hub.Module(name="pyramidbox_lite_mobile_mask")
+        self.phone_det = PhoneDetector(self.phone_detector_ckpt, task='phone', device=self.device)
 
         # 目标追踪帧缓存
         self.id_frames = dict()
@@ -42,7 +47,7 @@ class VPED(object):
 
     def predict(self, event='helmet', video_path=None, web_cam=False, draw_result=True):
         if event not in self.support_events:
-            NotImplementedError(f"The event '{event}' is currently not supported. Currently supported events are {self.support_events}")
+            raise NotImplementedError(f"The event '{event}' is currently not supported. Currently supported events are {self.support_events}")
 
         # 确定输入来源是本地视频还是摄像头
         if web_cam:
@@ -79,7 +84,7 @@ class VPED(object):
 
                 # 采集结束，进行二阶段行为属性识别（性别、安全帽、抽烟等）
                 if cur_frame % fps == min(sample_fps, 24):
-                    self._update_id_forms()
+                    self._update_id_forms(event)
                     self._clear_id_frames()
 
                 cur_frame += 1
@@ -99,7 +104,7 @@ class VPED(object):
 
                     # 采集结束，进行二阶段行为属性识别（性别、安全帽、抽烟等）
                     if cur_frame % fps == min(sample_fps, 24):
-                        self._update_id_forms()
+                        self._update_id_forms(event)
                         self._clear_id_frames()
 
                     cur_frame += 1
@@ -144,6 +149,16 @@ class VPED(object):
                     if event == 'all' or event == 'gender':
                         gender, conf_gender = self._detect_gender(id) # 性别识别
                         self._update_attr((gender, conf_gender), id, 'gender')
+                    if event == 'all' or event == 'mask':
+                        mask, conf_mask = self._detect_mask(id) # 口罩识别
+                        self._update_attr((mask, conf_mask), id, 'mask')
+                    if event == 'all' or event == 'smoking':
+                        smoking, conf_smoking = self._detect_smoking(id)
+                        self._update_attr((smoking, conf_smoking), id, 'smoking')
+                    if event == 'all' or event == 'phone':
+                        phone, conf_phone = self._detect_phone(id)
+                        self._update_attr((phone, conf_phone), id, 'phone')
+                    
 
     def _update_attr(self, result, id, attr):
         cls, conf = result
@@ -152,12 +167,15 @@ class VPED(object):
         if attr not in self.id_forms[id]:
             self.id_forms[id][attr] = (None, 0.0)
         # 最大置信度覆盖更新策略
-        if self.id_forms[id][attr][0] != cls and self.id_forms[id][attr][1] < conf:
+        if cls != self.id_forms[id][attr][0]:
             self.id_forms[id][attr] = (cls, conf)
-        if self.id_forms[id][attr][0] == cls and self.id_forms[id][attr][1] < conf:
+        elif self.id_forms[id][attr][1] < conf:
             self.id_forms[id][attr] = (cls, conf)
-    
+            
     def _detect_helmet(self, id):
+        """
+        检测是否佩戴安全帽
+        """
         classes = [None, 'head', 'helmet']
         helmet_results = self.helmet_det(self.id_frames[id], classes=[1,2], verbose=False)
         # 用于存储每一帧的检测结果，-1表示没有检测到，其余为检测到佩戴安全帽的帧平均概率值
@@ -193,15 +211,69 @@ class VPED(object):
         return classes[final_prediction], conf
     
     def _detect_gender(self, id):
+        """
+        识别性别
+        """
         frames = self.id_frames[id]
         return self.gender_classifer.clip_classify_withid(
             frames, 
             texts=["A man's body", "A woman's body"], 
             classes=["male", "female"])
 
+    def _detect_mask(self, id):
+        """
+        检测是否佩戴口罩
+        """
+        classes = ["no mask", "mask"]
+        frames = self.id_frames[id]
+        results = self.mask_det.face_detection(images=frames)
+        score = 0 #佩戴口罩的概率
+        for res in results:
+            label, conf = res['data'][0]['label'].lower(), res['data'][0]['confidence']
+            if label == 'mask':
+                score += conf
+            else:
+                score += 1 - conf
+        score /= len(results)
+        if score > 0.5: 
+            final_prediction = 1
+            conf = score
+        else: 
+            final_prediction = 0
+            conf = 1 - score
+        
+        return classes[final_prediction], conf
+     
+    def _detect_smoking(self, id):
+        """
+        检测是否吸烟
+        """
+        pass
 
+    def _detect_phone(self, id):
+        """
+        检测是否打电话
+        """
+        classes = ["no phone", "phone"]
+        frames = self.id_frames[id]
+        results = self.phone_det.predict(frames)
+        score = 0 # 打电话的概率
+        for res in results:
+            label, conf = res
+            if label == 'phone': score += conf
+            else: score += 1-conf
+        score /= len(results)
+        if score > 0.5: 
+            final_prediction = 1
+            conf = score
+        else: 
+            final_prediction = 0
+            conf = 1 - score
+        
+        return classes[final_prediction], conf
+        
     def _draw_one_frame(self, frame, bboxes, event='gender', line_thickness=2, fontsize=2):
-        classes_index = {'helmet':0, 'head':1, 'male': 0, 'female': 1}
+        classes_index = {'helmet':0, 'head':1, 'male': 0, 'female': 1, 'mask':0, 'no mask': 1, 'no smoking': 0, 'smoking': 1, 'no phone': 0, 'phone': 1}
         new_frame = frame.copy()
         bboxes2draw = []
         for obj in bboxes:
