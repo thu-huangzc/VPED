@@ -12,6 +12,22 @@
   <p style="color: gray; font-size: 0.9em;">行人追踪与<b>安全帽佩戴识别</b>（红色：未佩戴安全帽，绿色：已佩戴安全帽）</p>
 </div>
 
+<div style="text-align: center;">
+  <img src="../docs/gifs/mask_example2.gif" width=90% alt="helmet" />
+  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>口罩佩戴检测</b>(red: 没有佩戴口罩, green: 已佩戴口罩)</p>
+</div>
+
+<div style="text-align: center;">
+  <img src="../docs/gifs/phone_example1.gif" width=90% alt="helmet" />
+  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>手机使用识别检测</b>(red: 正在使用手机, green: 没有使用手机)</p>
+</div>
+
+<div style="text-align: center;">
+  <img src="../docs/gifs/smoking_example1.gif" width=90% alt="helmet" />
+  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>吸烟检测</b>(red: 吸烟, green: 没有吸烟)</p>
+</div>
+
+
 ## 快速开始
 1. **克隆此仓库**
 
@@ -27,13 +43,17 @@
     > Python 版本为 3.9.19，CUDA 版本为 11.8。当然，也可以尝试其他版本的 Python 或 CUDA。
 3. **下载预训练模型权重**
 
-    a. 行人检测与跟踪 -> [yolov8m.pt](https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8m.pt)
+    a. 行人检测与跟踪模型 -> [yolov8m.pt](https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8m.pt)
 
-    b. 安全帽检测 -> [helmet_head_person_epoch10.pt](https://drive.google.com/drive/folders/1f3z1MJ9K5zrn0tpNMhLMnO3gNTeNd6r_?usp=drive_link)
+    b. 安全帽检测模型 -> [helmet_head_person_epoch10.pt](https://drive.google.com/drive/folders/1f3z1MJ9K5zrn0tpNMhLMnO3gNTeNd6r_?usp=drive_link)
 
     c. CLIP 模型 -> [clip-vit-base-patch16](https://huggingface.co/openai/clip-vit-base-patch16/tree/main)
 
-    然后, 将 `yolov8m.pt` 和 `helmet_head_person_epoch10.pt` 放置在 `./ckpt/yolo/`, 将 `clip-vit-base-patch16` 放置在 `./ckpt/`
+    d. 吸烟检测模型 -> [cigarette_epoch20.pt](https://drive.google.com/drive/folders/1f3z1MJ9K5zrn0tpNMhLMnO3gNTeNd6r_?usp=drive_link)
+
+    e. 使用电话检测模型 -> [phone_detection.pth](https://drive.google.com/drive/folders/1f3z1MJ9K5zrn0tpNMhLMnO3gNTeNd6r_?usp=drive_link)
+
+    然后, 将 `yolov8m.pt`, `helmet_head_person_epoch10.pt`和`cigarette_epoch20.pt` 放置在 `./ckpt/yolo/`, 将 `clip-vit-base-patch16` 放置在 `./ckpt/`, 将 `phone_detection.pth`放置在`./ckpt/classifier/`.
 
 4. **运行演示**
 
@@ -48,7 +68,7 @@
     ```
 
     * `input`: 'webcam' 或输入视频文件路径；
-    * `event`: 'gender' 或 'helmet'（未来将添加更多行为识别功能）；
+    * `event`: 'gender', 'helmet', 'mask', 'smoking' 或 'phone'（未来将添加更多行为识别功能）；
     * `draw-results`:是否保存推理结果视频，默认保存在 `./inference/test_videos`.
 
 ## 注意事项

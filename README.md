@@ -12,6 +12,21 @@
   <p style="color: gray; font-size: 0.9em;">Pedestrian tracking and <b>helmet wearing identification</b>(red: not wearing helmet, green: wearing helmet)</p>
 </div>
 
+<div style="text-align: center;">
+  <img src="docs/gifs/mask_example2.gif" width=90% alt="helmet" />
+  <p style="color: gray; font-size: 0.9em;">Pedestrian tracking and <b>face mask wearing identification</b>(red: not wearing face mask, green: wearing face mask)</p>
+</div>
+
+<div style="text-align: center;">
+  <img src="docs/gifs/phone_example1.gif" width=90% alt="helmet" />
+  <p style="color: gray; font-size: 0.9em;">Pedestrian tracking and <b>using phone identification</b>(red: using phone, green: not using phone)</p>
+</div>
+
+<div style="text-align: center;">
+  <img src="docs/gifs/smoking_example1.gif" width=90% alt="helmet" />
+  <p style="color: gray; font-size: 0.9em;">Pedestrian tracking and <b>smoking detection</b>(red: smoking, green: not smoking)</p>
+</div>
+
 ## Quick Start
 1. **Clone this repository**
 
@@ -34,7 +49,11 @@
 
     c. CLIP model -> [clip-vit-base-patch16](https://huggingface.co/openai/clip-vit-base-patch16/tree/main)
 
-    Then, place `yolov8m.pt` and `helmet_head_person_epoch10.pt` under `./ckpt/yolo/`, place `clip-vit-base-patch16` under `./ckpt/`
+    d. Cigarette detection -> [cigarette_epoch20.pt](https://drive.google.com/drive/folders/1f3z1MJ9K5zrn0tpNMhLMnO3gNTeNd6r_?usp=drive_link)
+
+    e. Phone detection -> [phone_detection.pth](https://drive.google.com/drive/folders/1f3z1MJ9K5zrn0tpNMhLMnO3gNTeNd6r_?usp=drive_link)
+
+    Then, place `yolov8m.pt`, `helmet_head_person_epoch10.pt` and `cigarette_epoch20.pt` under `./ckpt/yolo/`, place `clip-vit-base-patch16` under `./ckpt/`, place `phone_detection.pth` under `./ckpt/classifier`.
 
 4. **Run demo**
 
@@ -48,7 +67,7 @@
     CUDA_VISIBLE_DEVICES=0 python demo.py --input webcam --event EVENT --draw-results
     ```
     * `input`: 'webcam' or input video file path;
-    * `event`: 'gender' or 'helmet' (More behavioral recognition will be added later);
+    * `event`: 'gender', 'helmet', 'mask', 'smoking' or 'phone' (More behavioral recognition will be added later);
     * `draw-results`: whether to save the inference result video, which will be saved under `./inference/test_videos` by default.
 
 
