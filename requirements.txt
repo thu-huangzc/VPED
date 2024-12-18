@@ -1,8 +1,11 @@
 numpy==1.24.4
 opencv_python==4.6.0.66
 opencv_python_headless==4.10.0.84
+paddlehub==2.4.0
 Pillow==11.0.0
+scikit_learn
 torch==2.1.2
-tqdm==4.66.4
+torchvision==0.16.2
+tqdm
 transformers==4.37.2
 ultralytics==8.3.47
