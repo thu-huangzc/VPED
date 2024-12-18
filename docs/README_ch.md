@@ -14,17 +14,17 @@
 
 <div style="text-align: center;">
   <img src="../docs/gifs/mask_example2.gif" width=90% alt="helmet" />
-  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>口罩佩戴检测</b>(red: 没有佩戴口罩, green: 已佩戴口罩)</p>
+  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>口罩佩戴检测</b> (红色: 没有佩戴口罩, 绿色: 已佩戴口罩)</p>
 </div>
 
 <div style="text-align: center;">
   <img src="../docs/gifs/phone_example1.gif" width=90% alt="helmet" />
-  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>手机使用识别检测</b>(red: 正在使用手机, green: 没有使用手机)</p>
+  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>手机使用识别检测</b> (红色: 正在使用手机, 绿色: 没有使用手机)</p>
 </div>
 
 <div style="text-align: center;">
   <img src="../docs/gifs/smoking_example1.gif" width=90% alt="helmet" />
-  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>吸烟检测</b>(red: 吸烟, green: 没有吸烟)</p>
+  <p style="color: gray; font-size: 0.9em;">行人追踪与<b>吸烟检测</b> (红色: 吸烟, 绿色: 没有吸烟)</p>
 </div>
 
 
