@@ -5,7 +5,7 @@
 # @File    : demo.py
 # @Software: Vscode
 # @Brief   : vped使用演示，支持on-line和off-line测试
-# @Command : CUDA_VISIBLE_DEVICES=0 python demo.py --input ./playground/test_videos/mask.mov --event mask --draw-results
+# @Command : CUDA_VISIBLE_DEVICES=1 python demo.py --input ./playground/test_videos/smoking.mov --event smoking --draw-results
 
 from models.vped import VPED
 import torch
@@ -33,6 +33,7 @@ def main():
         'yolo_helmet_ckpt': './ckpt/yolo/helmet_head_person_epoch10.pt',
         'clip_model_ckpt': './ckpt/clip-vit-base-patch16',
         'phone_detector_ckpt': './ckpt/classifier/phone_detection.pth',
+        'yolo_cigarette_ckpt': './ckpt/yolo/cigarette_epoch20.pt',
         'output_video_dir': './inference/test_videos'
     }
 

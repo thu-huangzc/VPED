@@ -5,7 +5,7 @@
 # @File    : train_yolo.py
 # @Software: Vscode
 # @Brief   : 使用自制数据集对yolov8进行训练
-# @Command : CUDA_VISIBLE_DEVICES=0,1 python train_yolo.py --epoch 100
+# @Command : CUDA_VISIBLE_DEVICES=0 python train_yolo.py --dataset ./datasets/cigarette-yolov8/data.yaml --epoch 50
 
 from models.yolo import load_yolo
 import argparse
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('--weights', type=str, default='./ckpt/yolo/yolov8m.pt', help='model.pt path(s)')
     parser.add_argument('--dataset', type=str, default='./datasets/Safety_Helmet_Train_dataset/data.yaml', help='yolo dataset yaml')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
-    parser.add_argument('--epoch', type=int, default=100, help='train epoch')
+    parser.add_argument('--epoch', type=int, default=10, help='train epoch')
     opt = parser.parse_args()
 
     train()

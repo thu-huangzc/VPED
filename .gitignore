@@ -9,7 +9,8 @@
 /datasets/Safety_Helmet_Train_dataset
 /datasets/VOC2028
 /datasets/smoke_phone
-/datasets/smoke
+/datasets/smoke_yolo_dataset
+/datasets/cigarette-yolov8
 
 # training
 /runs

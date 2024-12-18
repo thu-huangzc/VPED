@@ -24,6 +24,7 @@ class VPED(object):
         self.yolo_detector_ckpt = kwargs.get('yolo_detector_ckpt', './ckpt/yolo/yolov8m.pt') # 使用预训练yolov8+bytetracker对行人进行目标检测追踪
         self.yolo_helmet_ckpt = kwargs.get('yolo_helmet_ckpt', './ckpt/yolo/helmet_head_person_epoch10.pt') # 使用在自制数据集上训练后的yolov8作为安全帽识别和检测模型
         self.clip_model_ckpt = kwargs.get('clip_model_ckpt', './ckpt/clip-vit-base-patch16') # 使用clip基于人体图像进行性别识别
+        self.yolo_cigarette_ckpt = kwargs.get('yolo_cigarette_ckpt', './ckpt/yolo/cigarette_epoch20.pt') # 使用在自制数据集上训练后的yolov8作为香烟检测模型
         self.phone_detector_ckpt = kwargs.get('phone_detector_ckpt', './ckpt/classifier/phone_detection.pth') # 使用efficientnet对打电话进行识别
 
         # 其他参数
@@ -37,6 +38,7 @@ class VPED(object):
         self.helmet_det = load_yolo(self.yolo_helmet_ckpt, self.device)
         self.gender_classifer = CLIPClassifier(self.clip_model_ckpt, self.device)
         self.mask_det = hub.Module(name="pyramidbox_lite_mobile_mask")
+        self.cigarette_det = load_yolo(self.yolo_cigarette_ckpt, self.device)
         self.phone_det = PhoneDetector(self.phone_detector_ckpt, task='phone', device=self.device)
 
         # 目标追踪帧缓存
@@ -248,7 +250,31 @@ class VPED(object):
         """
         检测是否吸烟
         """
-        pass
+        classes = ['no smoking', 'smoking']
+        ciga_results = self.cigarette_det(self.id_frames[id], classes=[0], verbose=False)
+        # 用于存储每一帧的检测结果，-1表示没有检测到，其余为检测到香烟的帧平均概率值
+        frame_results = []
+        for res in ciga_results:
+            if len(res.boxes) == 0:  # 如果没有检测到
+                frame_results.append(-1)
+            else:
+                ciga_probs = [box.conf.item() for box in res.boxes if box.cls == 0]  # cls==2 表示 helmet
+                if ciga_probs:
+                    frame_results.append(sum(ciga_probs) / len(ciga_probs))  # 计算平均概率
+            
+        # 如果没有检测到的次数超过阈值，认定为没有抽烟
+        no_detection_count = frame_results.count(-1)
+        no_detection_ratio = no_detection_count / len(frame_results)
+        if no_detection_ratio > 0.6:
+            final_prediction = 0
+            conf = no_detection_ratio
+        else: # 否则，将非-1的概率值取平均作为抽烟的概率值
+            valid_probs = [prob for prob in frame_results if prob != -1]
+            ciga_prob = sum(valid_probs) / len(valid_probs)
+            final_prediction = 1
+            conf = ciga_prob
+
+        return classes[final_prediction], conf
 
     def _detect_phone(self, id):
         """
